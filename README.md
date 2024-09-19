@@ -1,19 +1,27 @@
-# [OpenWrt-Docker](https://github.com/SuLingGG/OpenWrt-Docker)
+# [OpenWrt-Docker](https://github.com/venlentine/OpenWrt-Docker)
 
-[![GitHub Stars](https://img.shields.io/github/stars/SuLingGG/OpenWrt-Rpi-Docker.svg?style=flat-square&label=Stars&logo=github)](https://github.com/SuLingGG/OpenWrt-Rpi-Docker/stargazers)
-[![GitHub Forks](https://img.shields.io/github/forks/SuLingGG/OpenWrt-Rpi-Docker.svg?style=flat-square&label=Forks&logo=github)](https://github.com/SuLingGG/OpenWrt-Rpi-Docker/fork)
-[![Docker Stars](https://img.shields.io/docker/stars/sulinggg/openwrt.svg?style=flat-square&label=Stars&logo=docker)](https://hub.docker.com/r/sulinggg/openwrt)
-[![Docker Pulls](https://img.shields.io/docker/pulls/sulinggg/openwrt.svg?style=flat-square&label=Pulls&logo=docker&color=orange)](https://hub.docker.com/r/sulinggg/openwrt)
+[![GitHub Stars](https://img.shields.io/github/stars/venlentine/OpenWrt-Rpi-Docker.svg?style=flat-square&label=Stars&logo=github)](https://github.com/venlentine/OpenWrt-Rpi-Docker/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/venlentine/OpenWrt-Rpi-Docker.svg?style=flat-square&label=Forks&logo=github)](https://github.com/venlentine/OpenWrt-Rpi-Docker/fork)
+[![Docker Stars](https://img.shields.io/docker/stars/venlentine/openwrt.svg?style=flat-square&label=Stars&logo=docker)](https://hub.docker.com/r/venlentine/openwrt)
+[![Docker Pulls](https://img.shields.io/docker/pulls/venlentine/openwrt.svg?style=flat-square&label=Pulls&logo=docker&color=orange)](https://hub.docker.com/r/venlentine/openwrt)
 
 本项目旨在构建适用于树莓派 1~4 、适用于 armv6/armv7/armv8(aarch64)/x86_64(amd64) 平台设备的 OpenWrt 镜像 (每日更新)。
 
-Github: <https://github.com/SuLingGG/OpenWrt-Docker>
+Github: <https://github.com/venlentine/OpenWrt-Docker>
+DockerHub: <https://hub.docker.com/r/venlentine/openwrt>
+OpenWrt: <https://downloads.openwrt.org/releases/>
+immortalwrt: <https://downloads.immortalwrt.org/releases/>
 
-DockerHub: <https://hub.docker.com/r/sulinggg/openwrt>
+## Update
+
+- SuLingGG/OpenWrt-Docker 不更新了，版本太老
+- 提升 immortalwrt: openwrt-18.06-k5.4 -> 23.05.3
+- 更改 immortalwrt 源，/etc/opkg/distfeeds.conf && config/repositories.conf
+-
 
 ## 支持设备及镜像版本
 
-本项目基于 [immortalwrt: openwrt-18.06-k5.4](https://github.com/immortalwrt/immortalwrt/tree/openwrt-18.06-k5.4)，每日上午 8 点编译 OpenWrt 镜像，镜像构建完成后将同时推送到 [DockerHub](https://hub.docker.com/r/sulinggg/openwrt) 和 阿里云镜像仓库 (上海) 。
+本项目基于 [immortalwrt: openwrt-18.06-k5.4](https://github.com/immortalwrt/immortalwrt/tree/openwrt-18.06-k5.4)，每日上午 8 点编译 OpenWrt 镜像，镜像构建完成后将同时推送到 [DockerHub](https://hub.docker.com/r/venlentine/openwrt) 和 阿里云镜像仓库 (上海) 。
 
 对于国内用户，为提高镜像拉取体验，可以考虑拉取存放于阿里云镜像仓库的镜像，镜像名称及标签如下表所示:
 
@@ -47,7 +55,7 @@ OpenWrt-Mni 镜像为几乎未添加额外软件包的 Docker 镜像，你可以
 
 ## 注意事项
 
-- 其中，树莓派 2B 镜像同时适用于 2B/3B/3B+/4B 。 
+- 其中，树莓派 2B 镜像同时适用于 2B/3B/3B+/4B 。
 - 若拉取镜像时不加任何标签，则将使用 latest 标签拉取镜像，latest 指向的镜像与树莓派 2B 镜像实际上为同一镜像。
 - 镜像中软件包的集成情况基本上与 [SuLingGG/OpenWrt-Rpi](SuLingGG/OpenWrt-Rpi) 项目中相同，但在 SuLingGG/OpenWrt-Rpi 项目的基础上，去掉了一些与无线/内核特性强相关的软件包。
 - 由于 Docker 容器与宿主机共享内核，所以 Docker 容器的内核特性与宿主机当前的内核特性相同。
