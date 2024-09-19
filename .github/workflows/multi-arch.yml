@@ -108,7 +108,7 @@ jobs:
 
       - name: Download Image Builder
         run: |
-          wget -q ${{ env.PREFIX_URL }}/${{ env.DEVICE_TARGET }}/${{ env.DEVICE_SUBTARGET }}/immortalwrt-imagebuilder-${{ env.OW_VERSION }}-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}.Linux-x86_64.tar.xz
+          wget -q $PREFIX_URL/$DEVICE_TARGET/$DEVICE_SUBTARGET/immortalwrt-imagebuilder-$OW_VERSION-$DEVICE_TARGET-$DEVICE_SUBTARGET.Linux-x86_64.tar.xz
 
       - name: Set Mini Image Builder
         run: |
