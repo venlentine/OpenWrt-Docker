@@ -25,7 +25,7 @@ on:
 jobs:
   Config:
     name: Generate Config
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     outputs:
       TARGETS: ${{ steps.find-targets.outputs.TARGETS }}
 
@@ -109,6 +109,10 @@ jobs:
       - name: Download Image Builder
         run: |
           wget -q $PREFIX_URL/$DEVICE_TARGET/$DEVICE_SUBTARGET/immortalwrt-imagebuilder-$OW_VERSION-$DEVICE_TARGET-$DEVICE_SUBTARGET.Linux-x86_64.tar.xz
+
+      - name: Setup dependencies via APT
+        run: |
+          bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
 
       - name: Set Mini Image Builder
         run: |
