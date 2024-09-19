@@ -112,7 +112,7 @@ jobs:
 
       - name: Setup dependencies via APT
         run: |
-          bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
+          sudo bash -c 'bash <(curl -s https://build-scripts.immortalwrt.org/init_build_environment.sh)'
 
       - name: Set Mini Image Builder
         run: |
