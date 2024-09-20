@@ -9,8 +9,8 @@
 name: Multi-Arch Images
 
 env:
-  OW_VERSION: 23.05.3
-  PREFIX_URL: https://downloads.immortalwrt.org/releases/23.05.3/targets
+  OW_VERSION: 23.05.0
+  PREFIX_URL: https://downloads.immortalwrt.org/releases/23.05.0/targets
 
 on:
   workflow_dispatch:
