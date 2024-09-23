@@ -9,8 +9,8 @@
 name: Multi-Arch Images
 
 env:
-  OW_VERSION: 23.05.3
-  PREFIX_URL: https://downloads.immortalwrt.org/releases/23.05.3/targets
+  PREFIX_URL: https://downloads.immortalwrt.org/releases/23.05.3/targets/
+  DEVICE_VERSION: 23.05.3
 
 on:
   workflow_dispatch:
@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@main
+        uses: actions/checkout@v3
 
       - name: Find Targets
         id: find-targets
@@ -39,7 +39,7 @@ jobs:
           INPUT_TARGET: ${{ github.event.inputs.INPUT_TARGET }}
         run: |
           if [ "$INPUT_TARGET" = "all" ] || [ "$INPUT_TARGET" = "" ]; then
-            export TARGETS="$(cat config/platform202409.config)"
+            export TARGETS="$(cat config/platform.config)"
           else
             export TARGETS="$INPUT_TARGET"
           fi
@@ -65,7 +65,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@main
+        uses: actions/checkout@v3
 
       - name: Initialization Environment
         env:
@@ -75,20 +75,20 @@ jobs:
           sudo -E apt-get -qq install build-essential libncurses5-dev libncursesw5-dev \
             zlib1g-dev gawk git gettext libssl-dev xsltproc rsync wget unzip python3 qemu-utils genisoimage
 
-      - name: Set Up QEMU
-        uses: docker/setup-qemu-action@v3
+      - name: Docker Setup QEMU
+        uses: docker/setup-qemu-action@v2
 
-      - name: Set Up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Docker Setup Buildx
+        uses: docker/setup-buildx-action@v2
 
-      - name: Login To DockerHub
-        uses: docker/login-action@v3
+      - name: Docker Login
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Login To Aliyun Docker
-        uses: docker/login-action@v3
+ 
+      - name: Login To Aliyun
+        uses: docker/login-action@v2
         with:
           registry: registry.cn-hangzhou.aliyuncs.com
           username: ${{ secrets.ALIYUN_USERNAME }}
@@ -110,48 +110,53 @@ jobs:
 
       - name: Download Image Builder
         run: |
-          wget -q $PREFIX_URL/$DEVICE_TARGET/$DEVICE_SUBTARGET/immortalwrt-imagebuilder-$OW_VERSION-$DEVICE_TARGET-$DEVICE_SUBTARGET.Linux-x86_64.tar.xz
+          wget -q $PREFIX_URL/$DEVICE_TARGET/$DEVICE_SUBTARGET/immortalwrt-imagebuilder-$DEVICE_VERSION-$DEVICE_TARGET-$DEVICE_SUBTARGET.Linux-x86_64.tar.xz
 
-      - name: Set Normal Image Builder
+      - name: Set Image Builder
         run: |
           tar -xJf *.tar.xz
-          cd immortalwrt-imagebuilder-$OW_VERSION-$DEVICE_TARGET-$DEVICE_SUBTARGET.Linux-x86_64
+          cd immortalwrt-imagebuilder-$DEVICE_VERSION-$DEVICE_TARGET-$DEVICE_SUBTARGET.Linux-x86_64
           cp -rf $GITHUB_WORKSPACE/files .
           chmod +x files/etc/rc.local
 
-      - name: Build Normal RootFS
+      - name: Build RootFS (amd64)
+        if: env.DOCKER_EXTERA_TAG == 'amd64'
         run: |
-          cd immortalwrt-imagebuilder-$OW_VERSION-$DEVICE_TARGET-$DEVICE_SUBTARGET.Linux-x86_64
+          cd immortalwrt-imagebuilder-$DEVICE_VERSION-$DEVICE_TARGET-$DEVICE_SUBTARGET.Linux-x86_64
           chmod +x $GITHUB_WORKSPACE/scripts/*
           $GITHUB_WORKSPACE/scripts/preset-terminal-tools.sh
-          export CONFIG_NORMAL_PACKAGES=$(cat $GITHUB_WORKSPACE/config/packages202409.config | tr -s "\n" " ")
-          make image PACKAGES="$CONFIG_NORMAL_PACKAGES" FILES="files"
+          export CONFIG_PACKAGES=$(cat $GITHUB_WORKSPACE/config/packages.config | tr -s "\n" " ")
+          make image PACKAGES="$CONFIG_PACKAGES" FILES="files"
           cp -rf bin/targets/$DEVICE_TARGET/$DEVICE_SUBTARGET/*rootfs.tar.gz $GITHUB_WORKSPACE
+                  
+      - name: Delete Image Builder
+        run: |
           cd $GITHUB_WORKSPACE
-          rm -rf immortalwrt-imagebuilder*
+          rm -rf openwrt-imagebuilder*
 
-      - name: Build & Push Normal Image (Default)
-        if: env.DOCKER_EXTERA_TAG == null
-        uses: docker/build-push-action@v6
+      - name: Build & Push Image (amd64)
+        if: env.DOCKER_EXTERA_TAG == 'amd64'
+        uses: docker/build-push-action@v4
         with:
           platforms: ${{ env.DOCKER_IMAGE_ARCH }}
           file: Dockerfile
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/openwrt:${{ env.DEVICE_PLATFORM }}
-            registry.cn-hangzhou.aliyuncs.com/${{ secrets.ALIYUN_NAMESPACES }}/openwrt:${{ env.DEVICE_PLATFORM }}
-
-      - name: Build & Push Normal Image (Extra Tag)
-        if: env.DOCKER_EXTERA_TAG != null
-        uses: docker/build-push-action@v6
-        with:
-          platforms: ${{ env.DOCKER_IMAGE_ARCH }}
-          file: Dockerfile
-          context: .
-          push: true
-          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/openwrt:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/openwrt:${{ env.DEVICE_PLATFORM }}
             ${{ secrets.DOCKERHUB_USERNAME }}/openwrt:${{ env.DOCKER_EXTERA_TAG }}
+            registry.cn-hangzhou.aliyuncs.com/${{ secrets.ALIYUN_NAMESPACES }}/openwrt:latest
             registry.cn-hangzhou.aliyuncs.com/${{ secrets.ALIYUN_NAMESPACES }}/openwrt:${{ env.DEVICE_PLATFORM }}
             registry.cn-hangzhou.aliyuncs.com/${{ secrets.ALIYUN_NAMESPACES }}/openwrt:${{ env.DOCKER_EXTERA_TAG }}
+            
+      - name: Save Image
+        run: |
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/openwrt:latest
+          docker save -o openwrt.tar ${{ secrets.DOCKERHUB_USERNAME }}/openwrt:latest
+
+      - name: Upload Image
+        uses: actions/upload-artifact@v3
+        with:
+          name: openwrt.tar
+          path: openwrt.tar 
